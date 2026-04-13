@@ -29,10 +29,23 @@ interface Order {
   orderNumber: string;
   total: number;
   status: string;
-  user: string;
+  /** API pode devolver id em string ou objeto com nome */
+  user: string | { name?: string };
   produtos: Produto[];
   updatedAt?: string;
   createdAt?: string;
+}
+
+function orderUserLabel(user: Order['user']): string {
+  if (user == null) return '—';
+  if (typeof user === 'string') {
+    const s = user.trim();
+    if (!s) return '—';
+    return s.length > 12 ? `${s.slice(0, 12)}…` : s;
+  }
+  const name = user.name?.trim();
+  if (name) return name;
+  return '—';
 }
 
 function messageFromUnknown(err: unknown, fallback: string): string {
@@ -323,7 +336,7 @@ export function OrdersProductsList() {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        <span>Usuário: {order.user.substring(0, 8)}...</span>
+                        <span>Usuário: {orderUserLabel(order.user)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-3 w-3" />
