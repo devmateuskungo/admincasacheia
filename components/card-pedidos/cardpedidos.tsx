@@ -19,7 +19,9 @@ import { BASE_URL } from '@/lib/api';
 import { formatKwanza } from '@/lib/currency';
 
 interface Produto {
-  price: number;
+  price?: number;
+  unitPrice?: number;
+  totalItem?: number;
   quantity: number;
   productName?: string;
 }
@@ -27,7 +29,12 @@ interface Produto {
 interface Order {
   _id: string;
   orderNumber: string;
-  total: number;
+  total?: number;
+  totalItens?: number;
+  resumoFinanceiro?: {
+    subtotal?: number;
+    total?: number;
+  };
   status: string;
   /** API pode devolver id em string ou objeto com nome */
   user: string | { name?: string };
@@ -52,6 +59,26 @@ function messageFromUnknown(err: unknown, fallback: string): string {
   if (err instanceof Error) return err.message || fallback;
   if (typeof err === 'string' && err.trim()) return err;
   return fallback;
+}
+
+function getUnitPrice(produto: Produto): number {
+  return Number(produto.unitPrice ?? produto.price ?? 0);
+}
+
+function getItemTotal(produto: Produto): number {
+  if (produto.totalItem != null) return Number(produto.totalItem);
+  return getUnitPrice(produto) * Number(produto.quantity || 0);
+}
+
+function getOrderTotal(order: Order): number {
+  return Number(order.resumoFinanceiro?.total ?? order.total ?? 0);
+}
+
+function getOrderSubtotal(order: Order): number {
+  if (order.resumoFinanceiro?.subtotal != null) {
+    return Number(order.resumoFinanceiro.subtotal);
+  }
+  return order.produtos?.reduce((sum, p) => sum + getItemTotal(p), 0) ?? 0;
 }
 
 export function OrdersProductsList() {
@@ -173,7 +200,7 @@ export function OrdersProductsList() {
   };
 
   // Cálculo de estatísticas
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + getOrderTotal(order), 0);
   const totalProducts = orders.reduce((sum, order) => sum + order.produtos.length, 0);
   const totalItems = orders.reduce((sum, order) => 
     sum + order.produtos.reduce((prodSum, prod) => prodSum + prod.quantity, 0), 0
@@ -340,7 +367,7 @@ export function OrdersProductsList() {
                       </div>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-3 w-3" />
-                        <span>{formatKwanza(order.total)}</span>
+                        <span>{formatKwanza(getOrderTotal(order))}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Package className="h-3 w-3" />
@@ -437,7 +464,7 @@ export function OrdersProductsList() {
                                 <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                                   <div className="flex items-center gap-1">
                                     <Tag className="h-3 w-3" />
-                                    <span>Preço: {formatKwanza(produto.price ?? 0)}/un</span>
+                                    <span>Preço: {formatKwanza(getUnitPrice(produto))}/un</span>
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <Hash className="h-3 w-3" />
@@ -448,7 +475,7 @@ export function OrdersProductsList() {
                               
                               <div className="text-right ml-4">
                                 <p className="font-bold text-lg">
-                                  {formatKwanza((produto.price || 0) * (produto.quantity || 0))}
+                                  {formatKwanza(getItemTotal(produto))}
                                 </p>
                                 <p className="text-sm text-gray-500">
                                   Total
@@ -472,22 +499,17 @@ export function OrdersProductsList() {
                       <div>
                         <p className="text-sm text-blue-600">Subtotal Produtos:</p>
                         <p className="font-bold">
-                          {formatKwanza(
-                            order.produtos?.reduce(
-                              (sum, p) => sum + (p.price || 0) * (p.quantity || 0),
-                              0
-                            ) ?? 0
-                          )}
+                          {formatKwanza(getOrderSubtotal(order))}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-blue-600">Total do Pedido:</p>
-                        <p className="font-bold text-lg">{formatKwanza(order.total ?? 0)}</p>
+                        <p className="font-bold text-lg">{formatKwanza(getOrderTotal(order))}</p>
                       </div>
                       <div>
                         <p className="text-sm text-blue-600">Quantidade de Itens:</p>
                         <p className="font-bold">
-                          {order.produtos?.reduce((sum, p) => sum + (p.quantity || 0), 0) || 0} unid.
+                          {order.totalItens ?? (order.produtos?.reduce((sum, p) => sum + (p.quantity || 0), 0) || 0)} unid.
                         </p>
                       </div>
                       <div>
