@@ -73,23 +73,23 @@ export default async function ProductPage({
   }
 
   return (
-    <main className="min-h-screen bg-gray-50/50">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-left mb-2 text-gray-900">
-          Casa Cheia
-        </h1>
-        <p className="text-left text-gray-500 text-sm mb-8">Gerir produtos</p>
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold">Produtos</h1>
+        <p className="text-gray-500">
+          Gerencie o catálogo da loja: cadastre, edite e acompanhe o stock de cada produto.
+        </p>
+      </header>
 
-        {error ? (
-          <p className="text-center text-red-600 text-xl mt-10">{error}</p>
-        ) : (
-          <ProductPageClient
-            products={products}
-            pageInfo={pageInfo}
-            categories={categories}
-          />
-        )}
-      </div>
-    </main>
+      {error ? (
+        <p className="text-center text-red-600 text-xl mt-10">{error}</p>
+      ) : (
+        <ProductPageClient
+          products={products}
+          pageInfo={pageInfo}
+          categories={categories}
+        />
+      )}
+    </div>
   );
 }

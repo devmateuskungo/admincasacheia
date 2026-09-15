@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { User, MapPin, Loader2, ChevronRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -407,20 +408,40 @@ export function ConfiguracoesClient() {
                 className="space-y-4 pt-2 border-t border-gray-100"
               >
                 {loadingInitialCoords ? (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                    A carregar coordenadas do servidor…
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-3 w-28" />
+                      <Skeleton className="h-9 w-full rounded-md sm:max-w-md" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-9 w-full rounded-md" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-9 w-full rounded-md" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Skeleton className="h-9 w-44 rounded-md" />
+                      <Skeleton className="h-9 w-28 rounded-md" />
+                      <Skeleton className="h-9 w-28 rounded-md" />
+                    </div>
                   </div>
-                ) : null}
-                {locationMessage && (
-                  <div
-                    className={`rounded-lg px-4 py-2 text-sm ${
-                      locationMessage.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700'
-                    }`}
-                  >
-                    {locationMessage.text}
-                  </div>
-                )}
+                ) : (
+                  <>
+                    {locationMessage && (
+                      <div
+                        className={`rounded-lg px-4 py-2 text-sm ${
+                          locationMessage.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700'
+                        }`}
+                      >
+                        {locationMessage.text}
+                      </div>
+                    )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nome da empresa</label>
                   <Input
@@ -520,6 +541,8 @@ export function ConfiguracoesClient() {
                     Ocultar
                   </Button>
                 </div>
+                  </>
+                )}
               </form>
             )}
           </CardContent>

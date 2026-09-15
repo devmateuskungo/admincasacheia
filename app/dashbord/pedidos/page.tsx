@@ -1,20 +1,15 @@
-import { OrdersProductsList, } from "@/components/card-pedidos/cardpedidos";
-
+import { OrdersProductsList } from "@/components/card-pedidos/cardpedidos";
 
 export default function Pedidos() {
-    return (
-
-        <div>
-
-
-            <h2 className="text-2xl font-bold mt-2">Pedidos</h2>
-            <p className="mb-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque provident officia non inventore quae consequatur laudantium sint <br /> impedit error vel, architecto ducimus qui odio rem ex voluptatem et tempore a.</p>
-            <OrdersProductsList />
-
-
-        </div>
-
-        // Para dashboard - versão simplificada
-    )
-
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold">Pedidos</h1>
+        <p className="text-gray-500">
+          Gerencie todos os pedidos da loja: acompanhe o estado de cada um, altere o status e consulte os detalhes dos produtos.
+        </p>
+      </header>
+      <OrdersProductsList />
+    </div>
+  );
 }

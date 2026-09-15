@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Card,
   CardContent,
@@ -444,12 +445,30 @@ export function BannersSection() {
           <div className="border-t border-gray-100 pt-4">
             <h3 className="text-sm font-medium text-gray-800 mb-2">Banners cadastrados</h3>
             {loadingList ? (
-              <div className="flex items-center gap-2 text-sm text-gray-600 py-4">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                A carregar…
+              <div className="space-y-3">
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-100 p-3"
+                  >
+                    <Skeleton className="h-14 w-24 rounded-md" />
+                    <div className="flex-1 min-w-[140px] space-y-2">
+                      <Skeleton className="h-3 w-3/4" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : banners.length === 0 ? (
-              <p className="text-sm text-gray-500 py-2">Nenhum banner listado.</p>
+              <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center">
+                <ImageIcon className="mx-auto mb-3 h-8 w-8 text-gray-300" />
+                <p className="text-sm text-gray-500">Nenhum banner cadastrado.</p>
+              </div>
             ) : (
               <ul className="space-y-3">
                 {banners.map((b) => {
