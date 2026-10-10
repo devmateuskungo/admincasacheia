@@ -1,6 +1,5 @@
 import { AppSidebar } from '@/components/sidebar/sidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { LogoutFloatingButton } from '@/components/LogoutFloatingButton';
 import { NotificationBell } from '@/components/notificacoes/NotificationBell';
 import { UserMenu } from '@/components/navbar/UserMenu';
 
@@ -23,8 +22,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {children}
           </section>
         </main>
-
-        <LogoutFloatingButton />
       </div>
     </SidebarProvider>
   );
