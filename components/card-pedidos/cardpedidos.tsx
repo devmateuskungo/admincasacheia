@@ -11,6 +11,7 @@ import {
   Hash,
   Inbox,
   Loader2,
+  MapPin,
   Package,
   Receipt,
   RotateCcw,
@@ -22,6 +23,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MapaPedidos } from "@/components/card-pedidos/mapa-pedidos";
 import { BASE_URL } from '@/lib/api';
 import { formatKwanza } from '@/lib/currency';
 import { cn } from '@/lib/utils';
@@ -32,6 +34,15 @@ interface Produto {
   totalItem?: number;
   quantity: number;
   productName?: string;
+  image?: string;
+}
+
+interface ShippingAddress {
+  contactName?: string;
+  phoneNumber?: string;
+  street?: string;
+  city?: string;
+  coordinates?: unknown;
 }
 
 interface Order {
@@ -44,10 +55,18 @@ interface Order {
     total?: number;
   };
   status: string;
+  statusLabel?: string;
+  paymentMethod?: string;
   user: string | { name?: string };
   produtos: Produto[];
+  entrega?: ShippingAddress;
+  shippingAddress?: ShippingAddress;
   updatedAt?: string;
   createdAt?: string;
+}
+
+function getDeliveryAddress(order: Order): ShippingAddress | undefined {
+  return order.entrega ?? order.shippingAddress;
 }
 
 type StatusFilter = "all" | "pending" | "confirmed" | "shipped" | "delivered" | "canceled";
@@ -160,6 +179,7 @@ export function OrdersProductsList() {
   const [updateMessage, setUpdateMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [activeTab, setActiveTab] = useState<'pedidos' | 'mapa'>('pedidos');
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -425,6 +445,34 @@ export function OrdersProductsList() {
         ))}
       </div>
 
+      {/* Tabs: Pedidos | Mapa */}
+      <div className="flex w-fit items-center gap-1 rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+        <button
+          onClick={() => setActiveTab('pedidos')}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition',
+            activeTab === 'pedidos'
+              ? 'bg-[#ED5379] text-white shadow'
+              : 'text-gray-600 hover:bg-gray-50'
+          )}
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Pedidos
+        </button>
+        <button
+          onClick={() => setActiveTab('mapa')}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition',
+            activeTab === 'mapa'
+              ? 'bg-[#ED5379] text-white shadow'
+              : 'text-gray-600 hover:bg-gray-50'
+          )}
+        >
+          <MapPin className="h-4 w-4" />
+          Mapa
+        </button>
+      </div>
+
       {/* Barra de ferramentas */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row">
@@ -479,11 +527,14 @@ export function OrdersProductsList() {
         </div>
       </div>
 
-      {/* Lista de Pedidos */}
-      {filteredOrders.length > 0 ? (
+      {/* Conteúdo da tab ativa */}
+      {activeTab === 'mapa' ? (
+        <MapaPedidos orders={filteredOrders} className="h-[480px] md:h-[600px]" />
+      ) : filteredOrders.length > 0 ? (
         <div className="space-y-4">
           {filteredOrders.map((order) => {
             const expanded = expandedOrder === order._id;
+            const delivery = getDeliveryAddress(order);
             return (
               <div
                 key={order._id}
@@ -639,6 +690,28 @@ export function OrdersProductsList() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Morada de entrega */}
+                    {delivery && (delivery.street || delivery.city) && (
+                      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
+                        <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                          <MapPin className="h-4 w-4 text-[#ED5379]" />
+                          Morada de Entrega
+                        </h4>
+                        <p className="text-sm text-gray-700">
+                          {[delivery.street, delivery.city]
+                            .filter(Boolean)
+                            .join(', ')}
+                        </p>
+                        {(delivery.contactName || delivery.phoneNumber) && (
+                          <p className="mt-1 text-xs text-gray-500">
+                            {[delivery.contactName, delivery.phoneNumber]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     <div className="mt-4 space-y-0.5 text-right text-xs text-gray-400">
                       {order.createdAt && (
